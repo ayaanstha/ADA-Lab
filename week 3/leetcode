@@ -1,0 +1,62 @@
+#include <stdbool.h>
+#include <stdlib.h>
+
+bool dfs(int course, int** adjList, int* visited, int numCourses) {
+    if (visited[course] == 1) {
+        return false;
+    }
+    if (visited[course] == 2) {
+        return true;
+    }
+    visited[course] = 1;
+    for (int i = 0; i < numCourses; i++) {
+        if (adjList[course][i] == 1) {
+            if (!dfs(i, adjList, visited, numCourses)) {
+                return false;
+            }
+        }
+    }
+    visited[course] = 2;
+    return true;
+}
+
+bool canFinish(int numCourses, int** prerequisites, int prerequisitesSize, int* prerequisitesColSize) {
+    int** adjList = (int**)malloc(numCourses * sizeof(int*));
+    for (int i = 0; i < numCourses; i++) {
+        adjList[i] = (int*)malloc(numCourses * sizeof(int));
+        for (int j = 0; j < numCourses; j++) {
+            adjList[i][j] = 0;
+        }
+    }
+
+    for (int i = 0; i < prerequisitesSize; i++) {
+        int course = prerequisites[i][0];
+        int pre = prerequisites[i][1];
+        adjList[course][pre] = 1;
+    }
+
+    int* visited = (int*)malloc(numCourses * sizeof(int));
+    for (int i = 0; i < numCourses; i++) {
+        visited[i] = 0;
+    }
+
+    for (int i = 0; i < numCourses; i++) {
+        if (visited[i] == 0) {
+            if (!dfs(i, adjList, visited, numCourses)) {
+                free(visited);
+                for (int i = 0; i < numCourses; i++) {
+                    free(adjList[i]);
+                }
+                free(adjList);
+                return false;
+            }
+        }
+    }
+
+    free(visited);
+    for (int i = 0; i < numCourses; i++) {
+        free(adjList[i]);
+    }
+    free(adjList);
+    return true;
+}
